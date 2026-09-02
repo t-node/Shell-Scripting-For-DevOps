@@ -1,0 +1,25 @@
+\
+name: Shell syntax check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate shell syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find . -type f \( -name "*.sh" -o -name "*.bash" \) -not -path "./.git/*")
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No shell scripts found."
+            exit 0
+          fi
+          for f in "${files[@]}"; do
+            echo "Checking $f"
+            bash -n "$f"
+          done
